@@ -1,0 +1,136 @@
+import { useState } from 'react';
+import { DiceCollectionType, Board } from '../../models/game';
+import CardDisplay from '../CardDisplay';
+import MiddlePanel from './GameScenePanels/MiddlePanel';
+import TopLeftPanel from './GameScenePanels/TopLeftPanel';
+import BottomLeftPanel from './GameScenePanels/BottomLeftPanel';
+import TopMiddlePanel from './GameScenePanels/TopMiddlePanel';
+import TopRightPanel from './GameScenePanels/TopRightPanel';
+import BottomRightPanel from './GameScenePanels/BottomRightPanel';
+
+interface GameSceneProps {
+  playerId: number;
+  gamePhase: string;
+  gameId: string;
+  playerUuid: string;
+  playerName: string;
+  opponentUuid: string;
+  opponentName: string;
+  board: Board | null;
+  setBoard: (board: Board | null) => void;
+}
+
+const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, setBoard }: GameSceneProps) => {
+  const [isRolling, setIsRolling] = useState<boolean>(false);
+
+  const handleRollDice = async (diceCollectionType: DiceCollectionType) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/games/roll-dice?game_id=${gameId}&player_uuid=${playerUuid}&dice_collection_type=${diceCollectionType}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+    } catch (error) {
+      console.error('Error joining game:', error);
+    }
+  };
+
+  if (gamePhase === 'game_init') {
+    return (
+      <div>
+        <h2>Game Scene</h2>
+        {playerId === 0 ? (
+          <div>
+            <p>You are Player 1. Please set the initial price by rolling the dice.</p>
+            <button 
+              onClick={() => handleRollDice(DiceCollectionType.INITIAL)}
+              disabled={isRolling}
+            >
+              {isRolling ? 'Rolling...' : 'Roll Dice To Set Initial Price'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <p>You are Player 2. Please wait for Player 1 to roll the dice and set the initial price.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ 
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      display: 'grid',
+      gridTemplateColumns: '3fr 4fr 3fr',
+      gridTemplateRows: '3fr 4fr 3fr',
+      gap: '1vmin',
+      backgroundColor: '#f0f0f0',
+      padding: '2vmin',
+      boxSizing: 'border-box'
+    }}>
+      {/* Top Row Left 1*/}
+      <div className="grid-cell">
+        <TopLeftPanel board={board} opponentName={opponentName} playerId={playerId} />
+      </div>
+
+      {/* Top Row Middle 2*/}
+      <div className="grid-cell">
+        <TopMiddlePanel board={board} playerId={playerId} />
+      </div>
+      
+      {/* Top Row Right 3*/}
+      <div className="grid-cell">
+        <TopRightPanel board={board} />
+      </div>
+      
+      {/* Middle Row Left 4*/}
+      <div className="grid-cell">4</div>
+
+      {/* Middle Row Middle 5*/}
+      <div className="grid-cell">
+        <MiddlePanel 
+          board={board} 
+          playerId={playerId} 
+          playerUuid={playerUuid} 
+          gameId={gameId} 
+          opponentUuid={opponentUuid}
+
+        />
+      </div>
+
+      {/* Middle Row Right 6*/}
+      <div className="grid-cell">6</div>
+      
+      {/* Bottom Row Left 7*/}
+      <div className="grid-cell">
+        <BottomLeftPanel board={board} gameId={gameId} playerName={playerName} playerId={playerId} playerUuid={playerUuid} />
+      </div>
+
+      {/* Bottom Row Middle 8*/}
+      <div className="grid-cell">8</div>
+
+      {/* Bottom Row Right 9*/}
+      <div className="grid-cell">
+        <BottomRightPanel 
+          board={board} 
+          playerId={playerId} 
+          gameId={gameId} 
+          playerUuid={playerUuid} 
+          handleRollDice={handleRollDice} 
+        />
+      </div>
+
+
+    </div>
+  );
+};
+
+export default GameScene; 
