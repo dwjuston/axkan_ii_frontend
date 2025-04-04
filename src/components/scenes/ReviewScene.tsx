@@ -4,6 +4,7 @@ import BottomLeftPanel from './GameScenePanels/BottomLeftPanel';
 import BottomRightPanel from './GameScenePanels/BottomRightPanel';
 import TopRightPanel from './GameScenePanels/TopRightPanel';
 import { useState } from 'react';
+import { endReview } from '../../utils/apiService';
 
 interface ReviewSceneProps {
   playerId: number;
@@ -14,12 +15,14 @@ interface ReviewSceneProps {
   opponentUuid: string;
   opponentName: string;
   board: Board | null;
+  selectedSpecialCardIndex: number | null;
+  setSelectedSpecialCardIndex: (index: number | null) => void;
 }
 
 
 
 
-const ReviewScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board }: ReviewSceneProps ) => {
+const ReviewScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, selectedSpecialCardIndex, setSelectedSpecialCardIndex }: ReviewSceneProps ) => {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [isReviewEnded, setIsReviewEnded] = useState(false);
@@ -27,25 +30,20 @@ const ReviewScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, oppo
   
   const onEndReview = async () => {
     if (isReviewEnded) return;
-    // endpoint
+    
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/games/end-review?game_id=${gameId}&player_uuid=${playerUuid}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await endReview(gameId, playerUuid);
+      
+      if (response.error) {
+        console.error('Error ending review:', response.error);
+        return;
+      }
   
-      const data = await response.json();
-
       // set game phase
       setIsReviewEnded(true);
   
     } catch (error) {
-      console.error('Error converting color:', error);
+      console.error('Error ending review:', error);
     }
   };
 
@@ -179,6 +177,8 @@ const ReviewScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, oppo
         playerName={playerName}
         playerId={playerId}
         playerUuid={playerUuid}
+        selectedSpecialCardIndex={selectedSpecialCardIndex}
+        setSelectedSpecialCardIndex={setSelectedSpecialCardIndex}
       />
 
     </div>

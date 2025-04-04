@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Board, DiceCollectionType } from '../../../models/game';
+import { Board } from '../../../models/game';
 import CardDisplay from '../../CardDisplay';
 import { isPlayerTurn } from '../../../utils/gameUtils';
+import { convertColor } from '../../../utils/apiService';
 
 interface BottomLeftPanelProps {
   board: Board | null;
@@ -9,24 +10,22 @@ interface BottomLeftPanelProps {
   playerName: string;
   playerId: number;
   playerUuid: string;
+  selectedSpecialCardIndex: number | null;
+  setSelectedSpecialCardIndex: (index: number | null) => void;
 }
 
-const diceCollectionOptions = [
-  { value: DiceCollectionType.INFLATION, label: 'Inflation' },
-  { value: DiceCollectionType.TAPERING, label: 'Tapering' },
-  { value: DiceCollectionType.STIMULUS, label: 'Stimulus' },
-  { value: DiceCollectionType.TARIFF, label: 'Tariff' },
-  { value: DiceCollectionType.SOFT_LANDING, label: 'Soft Landing' },
-  { value: DiceCollectionType.SUPPLY_SHOCK, label: 'Supply Shock' }
-];
-
-const BottomLeftPanel: React.FC<BottomLeftPanelProps> = ({ board, gameId, playerName, playerId, playerUuid }) => {
+const BottomLeftPanel: React.FC<BottomLeftPanelProps> = ({ 
+  board, 
+  gameId, 
+  playerName, 
+  playerId, 
+  playerUuid,
+  selectedSpecialCardIndex,
+  setSelectedSpecialCardIndex 
+}) => {
   const isTurn = isPlayerTurn(board, playerId);
-  const [highlightedSpecialCardIndex, setHighlightedSpecialCardIndex] = useState<number | null>(null);
   const [isHighlightMode, setIsHighlightMode] = useState<boolean>(false);
   const [isInteractMode, setIsInteractMode] = useState<boolean>(false);
-  const [showDiceDropdown, setShowDiceDropdown] = useState<boolean>(false);
-  const [selectedDiceType, setSelectedDiceType] = useState<DiceCollectionType | null>(null);
 
   useEffect(() => {
     // Determine if highlighting is allowed
@@ -34,57 +33,56 @@ const BottomLeftPanel: React.FC<BottomLeftPanelProps> = ({ board, gameId, player
     const isTurnComplete = board?.current_phase === 'turn_complete';
     const isFinalReview = board?.current_phase === 'final_review';
     
+    // Allow highlighting in both turn_complete (if dice roller) and final_review phases
     setIsHighlightMode((isTurnComplete && isDiceRoller) || isFinalReview);
     
     // Determine if interaction is allowed
-    setIsInteractMode(isFinalReview && highlightedSpecialCardIndex !== null);
-    
-    // Determine if dice dropdown should be shown
-    setShowDiceDropdown(isTurnComplete && isDiceRoller && highlightedSpecialCardIndex !== null);
+    console.log(`wow is it null: ${selectedSpecialCardIndex === null}`);
+    setIsInteractMode(isFinalReview && selectedSpecialCardIndex !== null);
     
     // Reset states when phase changes
     if (board?.current_phase !== 'turn_complete' && board?.current_phase !== 'final_review') {
-      setHighlightedSpecialCardIndex(null);
-      setSelectedDiceType(null);
+      setSelectedSpecialCardIndex(null);
     }
-  }, [board?.current_phase, board?.dice_roller, playerId, highlightedSpecialCardIndex]);
+  }, [board?.current_phase, board?.dice_roller, playerId, selectedSpecialCardIndex]);
 
   const handleSpecialCardClick = (index: number) => {
     if (isHighlightMode) {
       // Toggle the highlighted card - if it's already highlighted, unselect it
-      if (highlightedSpecialCardIndex === index) {
-        setHighlightedSpecialCardIndex(null);
-      } else {
-        setHighlightedSpecialCardIndex(index);
-      }
-    }
+      const newIndex = selectedSpecialCardIndex === index ? null : index;
+      setSelectedSpecialCardIndex(newIndex);
+      
+      // Notify parent component about the selection
+      setSelectedSpecialCardIndex(newIndex);
+      console.log(`newIndex: ${newIndex}`);
+      console.log(`selectedSpecialCardIndex: ${selectedSpecialCardIndex}`);
+    } 
   };
 
   const onColorConvert = async (cardIndex: number) => {
     if (cardIndex === -1) {
       // This is the hidden pair
-      console.log(`Converting color for hidden pair because of the special card index ${highlightedSpecialCardIndex}`);
+      console.log(`Converting color for hidden pair because of the special card index ${selectedSpecialCardIndex}`);
     } else {
       // This is a regular card
-      console.log(`Converting color for selected pair at index ${cardIndex} because of the special card index ${highlightedSpecialCardIndex}`);
+      console.log(`Converting color for selected pair at index ${cardIndex} because of the special card index ${selectedSpecialCardIndex}`);
     }
     
-    // endpoint
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/games/convert-color?game_id=${gameId}&player_uuid=${playerUuid}&pair_index=${cardIndex}&special_card_index=${highlightedSpecialCardIndex}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+      const response = await convertColor(
+        gameId, 
+        playerUuid, 
+        cardIndex, 
+        selectedSpecialCardIndex || 0
       );
 
-      const data = await response.json();
+      if (response.error) {
+        console.error('Error converting color:', response.error);
+        return;
+      }
 
       // remove the special card
-      setHighlightedSpecialCardIndex(null);
+      setSelectedSpecialCardIndex(null);
 
     } catch (error) {
       console.error('Error converting color:', error);
@@ -148,7 +146,28 @@ const BottomLeftPanel: React.FC<BottomLeftPanelProps> = ({ board, gameId, player
             gap: '0.5vmin',
             alignItems: 'center'
           }}>
-            <div style={{ fontSize: '1.5vmin', color: '#666', marginBottom: '0.5vmin' }}>Seven Cards</div>
+            <div style={{ 
+              fontSize: '1.5vmin', 
+              color: '#666', 
+              marginBottom: '0.5vmin',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5vmin'
+            }}>
+              Seven Cards
+              {board?.current_phase === 'turn_complete' && board?.dice_roller === playerId && (
+                <span style={{ 
+                  fontSize: '1.2vmin', 
+                  color: '#4CAF50', 
+                  fontWeight: 'bold',
+                  backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                  padding: '0.2vmin 0.5vmin',
+                  borderRadius: '0.3vmin'
+                }}>
+                  (Dice Roller)
+                </span>
+              )}
+            </div>
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -160,7 +179,7 @@ const BottomLeftPanel: React.FC<BottomLeftPanelProps> = ({ board, gameId, player
                   key={index} 
                   card={card} 
                   size="small" 
-                  isHighlighted={index === highlightedSpecialCardIndex}
+                  isHighlighted={index === selectedSpecialCardIndex}
                   isInteractive={isHighlightMode}
                   onClick={() => handleSpecialCardClick(index)}
                 />

@@ -7,6 +7,7 @@ import BottomLeftPanel from './GameScenePanels/BottomLeftPanel';
 import TopMiddlePanel from './GameScenePanels/TopMiddlePanel';
 import TopRightPanel from './GameScenePanels/TopRightPanel';
 import BottomRightPanel from './GameScenePanels/BottomRightPanel';
+import { rollDice } from '../../utils/apiService';
 
 interface GameSceneProps {
   playerId: number;
@@ -18,23 +19,32 @@ interface GameSceneProps {
   opponentName: string;
   board: Board | null;
   setBoard: (board: Board | null) => void;
+  selectedSpecialCardIndex: number | null;
+  setSelectedSpecialCardIndex: (index: number | null) => void;
 }
 
-const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, setBoard }: GameSceneProps) => {
+const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, setBoard, selectedSpecialCardIndex, setSelectedSpecialCardIndex }: GameSceneProps) => {
   const [isRolling, setIsRolling] = useState<boolean>(false);
 
-  const handleRollDice = async (diceCollectionType: DiceCollectionType) => {
+  const handleRollDice = async (diceCollectionType: DiceCollectionType, specialCardIndex: number | null) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/games/roll-dice?game_id=${gameId}&player_uuid=${playerUuid}&dice_collection_type=${diceCollectionType}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
+      setIsRolling(true);
+      const response = await rollDice(gameId, playerUuid, diceCollectionType, specialCardIndex);
+      
+      if (response.error) {
+        console.error('Error rolling dice:', response.error);
+        setIsRolling(false);
+        return;
+      }
+      
+      // Clear the selected special card index after rolling dice
+      setSelectedSpecialCardIndex(null);
+      
+      // Handle successful response if needed
+      setIsRolling(false);
     } catch (error) {
-      console.error('Error joining game:', error);
+      console.error('Error rolling dice:', error);
+      setIsRolling(false);
     }
   };
 
@@ -46,7 +56,7 @@ const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, oppone
           <div>
             <p>You are Player 1. Please set the initial price by rolling the dice.</p>
             <button 
-              onClick={() => handleRollDice(DiceCollectionType.INITIAL)}
+              onClick={() => handleRollDice(DiceCollectionType.INITIAL, null)}
               disabled={isRolling}
             >
               {isRolling ? 'Rolling...' : 'Roll Dice To Set Initial Price'}
@@ -111,7 +121,15 @@ const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, oppone
       
       {/* Bottom Row Left 7*/}
       <div className="grid-cell">
-        <BottomLeftPanel board={board} gameId={gameId} playerName={playerName} playerId={playerId} playerUuid={playerUuid} />
+        <BottomLeftPanel 
+          board={board} 
+          gameId={gameId} 
+          playerName={playerName} 
+          playerId={playerId} 
+          playerUuid={playerUuid}
+          selectedSpecialCardIndex={selectedSpecialCardIndex}
+          setSelectedSpecialCardIndex={setSelectedSpecialCardIndex}
+        />
       </div>
 
       {/* Bottom Row Middle 8*/}
@@ -124,7 +142,8 @@ const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, oppone
           playerId={playerId} 
           gameId={gameId} 
           playerUuid={playerUuid} 
-          handleRollDice={handleRollDice} 
+          handleRollDice={handleRollDice}
+          selectedSpecialCardIndex={selectedSpecialCardIndex}
         />
       </div>
 

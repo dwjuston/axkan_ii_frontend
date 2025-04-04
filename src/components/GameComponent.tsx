@@ -15,6 +15,8 @@ const GameComponent = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [board, setBoard] = useState<Board | null>(null);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [selectedSpecialCardIndex, setSelectedSpecialCardIndex] = useState<number | null>(null);
+
   // own ids
   const [playerUuid, setPlayerUuid] = useState<string>('');
   const [playerName, setPlayerName] = useState<string>('');
@@ -119,6 +121,8 @@ const GameComponent = () => {
             opponentName={opponentName || ''}
             board={board}
             setBoard={setBoard}
+            selectedSpecialCardIndex={selectedSpecialCardIndex}
+            setSelectedSpecialCardIndex={setSelectedSpecialCardIndex}
         />
       )}
 
@@ -133,6 +137,8 @@ const GameComponent = () => {
             opponentUuid={opponentUuid || ''}
             opponentName={opponentName || ''}
             board={board}
+            selectedSpecialCardIndex={selectedSpecialCardIndex}
+            setSelectedSpecialCardIndex={setSelectedSpecialCardIndex}
         />
     )}
 

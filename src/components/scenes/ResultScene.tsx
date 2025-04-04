@@ -22,8 +22,8 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
     );
   }
 
-  const isPlayer1Winner = gameResult.winner === 0;
-  const isPlayer2Winner = gameResult.winner === 1;
+  const isPlayerWinner = gameResult.winner === playerId;
+  const isOpponentWinner = gameResult.winner !== playerId;
   const isDraw = gameResult.winner === -1;
 
   return (
@@ -43,7 +43,7 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
         padding: '2vmin',
         marginBottom: '3vmin',
         borderRadius: '1vmin',
-        backgroundColor: isDraw ? '#9E9E9E' : isPlayer1Winner ? '#4CAF50' : '#F44336',
+        backgroundColor: isDraw ? '#9E9E9E' : isPlayerWinner ? '#4CAF50' : '#F44336',
         color: 'white',
         textAlign: 'center',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
@@ -74,7 +74,6 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           display: 'flex',
           flexDirection: 'column',
-          border: isPlayer1Winner ? '3px solid #4CAF50' : '1px solid #ddd'
         }}>
           <div style={{
             display: 'flex',
@@ -85,20 +84,8 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
             borderBottom: '1px solid #eee'
           }}>
             <h2 style={{ margin: '0', fontSize: '2.5vmin', color: '#333' }}>
-              {gameResult.player_1.name}
+              {gameResult.player_1.name} {gameResult.player_1.player_id === playerId ? '(You)' : '(Opponent)'}
             </h2>
-            {isPlayer1Winner && (
-              <div style={{
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                padding: '0.5vmin 1vmin',
-                borderRadius: '0.5vmin',
-                fontSize: '1.5vmin',
-                fontWeight: 'bold'
-              }}>
-                WINNER
-              </div>
-            )}
           </div>
 
           {/* Player 1 Stats */}
@@ -177,7 +164,6 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           display: 'flex',
           flexDirection: 'column',
-          border: isPlayer2Winner ? '3px solid #4CAF50' : '1px solid #ddd'
         }}>
           <div style={{
             display: 'flex',
@@ -188,20 +174,8 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
             borderBottom: '1px solid #eee'
           }}>
             <h2 style={{ margin: '0', fontSize: '2.5vmin', color: '#333' }}>
-              {gameResult.player_2.name}
+              {gameResult.player_2.name} {gameResult.player_2.player_id === playerId ? '(You)' : '(Opponent)'}
             </h2>
-            {isPlayer2Winner && (
-              <div style={{
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                padding: '0.5vmin 1vmin',
-                borderRadius: '0.5vmin',
-                fontSize: '1.5vmin',
-                fontWeight: 'bold'
-              }}>
-                WINNER
-              </div>
-            )}
           </div>
 
           {/* Player 2 Stats */}

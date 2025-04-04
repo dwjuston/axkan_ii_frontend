@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Board, DiceCollectionType } from '../../../models/game';
 
 interface BottomRightPanelProps {
@@ -6,7 +6,8 @@ interface BottomRightPanelProps {
   playerId: number;
   gameId: string;
   playerUuid: string;
-  handleRollDice: (diceCollectionType: DiceCollectionType) => void;
+  handleRollDice: (diceCollectionType: DiceCollectionType, specialCardIndex: number | null) => void;
+  selectedSpecialCardIndex: number | null;
 }
 
 const BottomRightPanel: React.FC<BottomRightPanelProps> = ({ 
@@ -14,10 +15,24 @@ const BottomRightPanel: React.FC<BottomRightPanelProps> = ({
   playerId, 
   gameId, 
   playerUuid, 
-  handleRollDice 
+  handleRollDice,
+  selectedSpecialCardIndex
 }) => {
   // Check if the current player is the dice roller
   const isDiceRoller = board?.dice_roller === playerId;
+  const [selectedDiceType, setSelectedDiceType] = useState<DiceCollectionType | null>(null);
+  
+  const handleDiceTypeSelect = (type: DiceCollectionType) => {
+    setSelectedDiceType(type);
+  };
+  
+  const handleRollDiceClick = () => {
+    if (selectedDiceType) {
+      console.log(`Selected dice type: ${selectedDiceType} for card at index ${selectedSpecialCardIndex}`);
+      handleRollDice(selectedDiceType, selectedSpecialCardIndex);
+      setSelectedDiceType(null);
+    }
+  };
   
   return (
     <div style={{
@@ -44,23 +59,75 @@ const BottomRightPanel: React.FC<BottomRightPanelProps> = ({
             color: '#333',
             fontSize: '2vmin'
           }}>Your Turn to Roll Dice</h3>
-          <button
-            onClick={() => handleRollDice(DiceCollectionType.REGULAR)}
-            style={{
-              padding: '1vmin 3vmin',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.5vmin',
-              cursor: 'pointer',
-              fontSize: '2vmin',
-              fontWeight: 'bold',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            Roll Dice
-          </button>
+          
+          {selectedSpecialCardIndex !== null ? (
+            <>
+              <div style={{ fontSize: '1.5vmin', color: '#666', marginBottom: '0.5vmin' }}>
+                Special Card Selected: {selectedSpecialCardIndex + 1}
+              </div>
+              
+              <div style={{ width: '100%', marginBottom: '1vmin' }}>
+                <div style={{ fontSize: '1.2vmin', color: '#666', marginBottom: '0.5vmin' }}>Select Dice Type:</div>
+                <select 
+                  value={selectedDiceType || ''} 
+                  onChange={(e) => handleDiceTypeSelect(e.target.value as DiceCollectionType)}
+                  style={{
+                    padding: '0.5vmin',
+                    borderRadius: '0.3vmin',
+                    border: '1px solid #ccc',
+                    fontSize: '1.2vmin',
+                    width: '100%'
+                  }}
+                >
+                  <option value="">Select a dice type</option>
+                  <option value={DiceCollectionType.INFLATION}>Inflation (2 positive, 1 negative)</option>
+                  <option value={DiceCollectionType.TAPERING}>Tapering (1 positive, 2 negative)</option>
+                  <option value={DiceCollectionType.STIMULUS}>Stimulus (1 positive)</option>
+                  <option value={DiceCollectionType.TARIFF}>Tariff (1 negative)</option>
+                  <option value={DiceCollectionType.SOFT_LANDING}>Soft Landing (1 positive, 1 negative, result +1)</option>
+                  <option value={DiceCollectionType.SUPPLY_SHOCK}>Supply Shock (1 positive, 1 negative, result -1)</option>
+                </select>
+              </div>
+              
+              {selectedDiceType && (
+                <button
+                  onClick={handleRollDiceClick}
+                  style={{
+                    padding: '1vmin 3vmin',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5vmin',
+                    cursor: 'pointer',
+                    fontSize: '2vmin',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Roll Dice
+                </button>
+              )}
+            </>
+          ) : (
+            <button
+              onClick={() => handleRollDice(DiceCollectionType.REGULAR, null)}
+              style={{
+                padding: '1vmin 3vmin',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5vmin',
+                cursor: 'pointer',
+                fontSize: '2vmin',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Roll Dice
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -94,22 +161,16 @@ const BottomRightPanel: React.FC<BottomRightPanelProps> = ({
               </div>
             ))}
           </div>
-          {board?.dice_extra !== 0 && (
+          {board?.dice_extra !== 0 && board && (
             <div style={{
               marginTop: '1vmin',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.5vmin'
+              gap: '0.5vmin',
+              color: board.dice_extra > 0 ? '#4CAF50' : '#F44336',
+              fontWeight: 'bold'
             }}>
-              <span style={{ color: '#666', fontSize: '1.5vmin' }}>Extra</span>
-              <span style={{ 
-                fontWeight: 'bold',
-                fontSize: '2.5vmin',
-                color: board?.dice_extra !== null && board?.dice_extra !== undefined && board?.dice_extra > 0 ? '#4CAF50' : '#F44336'
-              }}>
-                {board?.dice_extra !== null && board?.dice_extra !== undefined && board?.dice_extra > 0 ? '+' : ''}{board?.dice_extra}
-              </span>
+              <span>Extra: {board.dice_extra > 0 ? '+' : ''}{board.dice_extra}</span>
             </div>
           )}
         </>

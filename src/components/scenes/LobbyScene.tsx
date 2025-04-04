@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { joinGame, readyGame } from '../../utils/apiService';
 
 interface LobbySceneProps {
   gameId: string;
@@ -36,15 +37,14 @@ const LobbyScene = ({
 
   const handleJoin = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/games/join', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ player_name: inputName }),
-      });
-
-      const data = await response.json();
+      const response = await joinGame(inputName);
+      
+      if (response.error) {
+        console.error('Error joining game:', response.error);
+        return;
+      }
+      
+      const data = response.data;
       setGameId(data.game_id);
       setPlayerUuid(data.player_uuid);
       setPlayerName(inputName);
@@ -57,17 +57,13 @@ const LobbyScene = ({
 
   const handleReady = async () => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/games/ready?game_id=${gameId}&player_uuid=${playerUuid}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const data = await response.json();
+      const response = await readyGame(gameId, playerUuid);
+      
+      if (response.error) {
+        console.error('Error getting ready:', response.error);
+        return;
+      }
+      
       setPlayerReady(true);
     } catch (error) {
       console.error('Error getting ready:', error);

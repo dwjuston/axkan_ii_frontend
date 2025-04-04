@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Board } from '../../../models/game';
 import CardDisplay from '../../CardDisplay';
 import { isPlayerTurn } from '../../../utils/gameUtils';
+import { selectPair } from '../../../utils/apiService';
 
 interface MiddlePanelProps {
   board: Board | null;
@@ -52,23 +53,19 @@ const MiddlePanel: React.FC<MiddlePanelProps> = ({ board, playerId, playerUuid, 
       // Mark the pair as selected immediately for better UX
       setSelectedPairIndex(pairIndex);
       
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/games/select-pair?game_id=${gameId}&player_uuid=${playerUuid}&pair_index=${pairIndex}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await selectPair(gameId, playerUuid, pairIndex);
       
-      if (!response.ok) {
+      if (response.error) {
         // If the request fails, reset the selected pair
         setSelectedPairIndex(null);
-        throw new Error('Failed to select pair');
+        console.error('Error selecting pair:', response.error);
+        return;
       }
       
-      const data = await response.json();
-      console.log('Pair selected successfully:', data);
+      console.log('Pair selected successfully:', response.data);
     } catch (error) {
       console.error('Error selecting pair:', error);
+      setSelectedPairIndex(null);
     }
   };
   
