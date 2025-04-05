@@ -1,4 +1,4 @@
-import { Board, GamePhase } from '../../models/game';
+import { Board } from '../../models/game';
 import BottomLeftPanel from './GameScenePanels/BottomLeftPanel';
 import { useState } from 'react';
 import { endReview } from '../../utils/apiService';
