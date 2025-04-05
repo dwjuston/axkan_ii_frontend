@@ -131,12 +131,9 @@ const GameComponent = () => {
     {gamePhase === 'final_review' && (
         <ReviewScene
             playerId={playerId}
-            gamePhase={gamePhase}
             gameId={gameId}
             playerUuid={playerUuid}
             playerName={playerName}
-            opponentUuid={opponentUuid || ''}
-            opponentName={opponentName || ''}
             board={board}
             selectedSpecialCardIndex={selectedSpecialCardIndex}
             setSelectedSpecialCardIndex={setSelectedSpecialCardIndex}

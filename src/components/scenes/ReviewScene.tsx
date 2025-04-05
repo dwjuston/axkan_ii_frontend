@@ -1,19 +1,13 @@
 import { Board, GamePhase } from '../../models/game';
-import TopLeftPanel from './GameScenePanels/TopLeftPanel';
 import BottomLeftPanel from './GameScenePanels/BottomLeftPanel';
-import BottomRightPanel from './GameScenePanels/BottomRightPanel';
-import TopRightPanel from './GameScenePanels/TopRightPanel';
 import { useState } from 'react';
 import { endReview } from '../../utils/apiService';
 
 interface ReviewSceneProps {
   playerId: number;
-  gamePhase: GamePhase;
   gameId: string;
   playerUuid: string;
   playerName: string;
-  opponentUuid: string;
-  opponentName: string;
   board: Board | null;
   selectedSpecialCardIndex: number | null;
   setSelectedSpecialCardIndex: (index: number | null) => void;
@@ -22,7 +16,7 @@ interface ReviewSceneProps {
 
 
 
-const ReviewScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, selectedSpecialCardIndex, setSelectedSpecialCardIndex }: ReviewSceneProps ) => {
+const ReviewScene = ({ playerId, gameId, playerUuid, playerName, board, selectedSpecialCardIndex, setSelectedSpecialCardIndex }: ReviewSceneProps ) => {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [isReviewEnded, setIsReviewEnded] = useState(false);
