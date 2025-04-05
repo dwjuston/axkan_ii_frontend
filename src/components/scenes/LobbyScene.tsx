@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { joinGame, readyGame, clearGame } from '../../utils/apiService';
-import { PlayerMetadata } from '../../models/game';
 interface LobbySceneProps {
   gameId: string;
   setGameId: (id: string) => void;
