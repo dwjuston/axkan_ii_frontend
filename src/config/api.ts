@@ -29,7 +29,7 @@ export const API_CONFIG = {
   },
   
   // WebSocket endpoint
-  WS_ENDPOINT: 'ws://axkaniibacken-production.up.railway.app/api/v1/games/ws',
+  WS_ENDPOINT: 'wss://axkaniibacken-production.up.railway.app/api/v1/games/ws',
   //WS_ENDPOINT: 'ws://127.0.0.1:8000/api/v1/games/ws',
 };
 
