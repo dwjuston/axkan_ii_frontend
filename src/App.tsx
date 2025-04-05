@@ -1,5 +1,4 @@
 import GameComponent from './components/GameComponent'
-import MaterialShowcase from './components/MaterialShowcase'
 import './App.css'
 
 function App() {
