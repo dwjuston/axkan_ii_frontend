@@ -46,6 +46,7 @@ export async function apiRequest<T>(
     // Default headers
     const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
+      'AXKAN': API_CONFIG.API_KEY || '',
     };
 
     // Merge default headers with provided headers
@@ -75,6 +76,16 @@ export async function apiRequest<T>(
       status: 500,
     };
   }
+}
+
+/**
+ * Clear a game
+ * @returns Promise with game response
+ */
+export async function clearGame(): Promise<ApiResponse<any>> {
+  return apiRequest(API_CONFIG.ENDPOINTS.CLEAR_GAME, {
+    method: 'POST',
+  });
 }
 
 /**

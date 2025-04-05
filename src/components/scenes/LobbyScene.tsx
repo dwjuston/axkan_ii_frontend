@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { joinGame, readyGame } from '../../utils/apiService';
-
+import { joinGame, readyGame, clearGame } from '../../utils/apiService';
+import { PlayerMetadata } from '../../models/game';
 interface LobbySceneProps {
   gameId: string;
   setGameId: (id: string) => void;
@@ -45,6 +45,8 @@ const LobbyScene = ({
       }
       
       const data = response.data;
+      // parse data into GameResponse
+      console.log('LobbyScene: handleJoin: data:', data);
       setGameId(data.game_id);
       setPlayerUuid(data.player_uuid);
       setPlayerName(inputName);
@@ -70,9 +72,34 @@ const LobbyScene = ({
     }
   };
 
+  const handleClearGame = async () => {
+    try {
+      const response = await clearGame();
+      
+      if (response.error) {
+        console.error('Error clearing game:', response.error);
+        return;
+      }
+      
+      // Reset game state
+      setGameId('');
+      setPlayerUuid('');
+      setPlayerName('');
+      setOpponentUuid(null);
+      setOpponentName(null);
+      setOpponentReady(false);
+      setPlayerReady(false);
+      
+      console.log('Game cleared successfully');
+    } catch (error) {
+      console.error('Error clearing game:', error);
+    }
+  };
+
   if (!gameId) {
     return (
       <div>
+        <button style={{ position: 'absolute', top: '10px', left: '10px' }} onClick={handleClearGame}>Clear Game</button>
         <h2>Join Game</h2>
         <input
           type="text"
@@ -86,9 +113,7 @@ const LobbyScene = ({
   }
 
   return (
-    <div>
-      <h2>Game Room: {gameId}</h2>
-      
+    <div>      
       {countdown !== null && countdown > 0 && (
         <h3>Countdown: {countdown}</h3>
       )}

@@ -6,8 +6,8 @@ function App() {
   return (
     <div className="App">
       {/* Uncomment the line below to test Material-UI */}
-      <MaterialShowcase />
-      {/* <GameComponent /> */}
+      {/* <MaterialShowcase /> */}
+      <GameComponent />
     </div>
   )
 }

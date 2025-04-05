@@ -5,6 +5,8 @@ import GameScene from './scenes/GameScene';
 import { Board, GamePhase, GameResult } from '../models/game';
 import ReviewScene from './scenes/ReviewScene';
 import ResultScene from './scenes/ResultScene';
+import { API_CONFIG } from '../config/api';
+import { getWsUrl } from '../config/api';
 
 
 const GameComponent = () => {
@@ -34,9 +36,9 @@ const GameComponent = () => {
 
     if (gameId && playerUuid) {
       console.log('Establishing WebSocket connection...');
-      const ws = new WebSocket(
-        `ws://127.0.0.1:8000/api/v1/games/ws?game_id=${gameId}&player_uuid=${playerUuid}`
-      );
+      
+      const wsUrl = getWsUrl() + '?game_id=' + gameId + '&player_uuid=' + playerUuid + '&API_KEY_INTERNAL=' + API_CONFIG.API_KEY;
+      const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
         console.log('WebSocket connection established');

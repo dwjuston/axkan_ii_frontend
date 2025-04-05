@@ -68,6 +68,7 @@ export const handleGameMessage = (message: string,
 const handleJoinMessage = (content: any, setOpponentUuid: (uuid: string | null) => void, setOpponentName: (name: string | null) => void) => {
   // when the second player joins
   // parse content into PlayerMetadata
+  console.log('Handling join message:', content);
   const playerMetadata: PlayerMetadata = JSON.parse(content);
 
   // set opponent uuid and name
