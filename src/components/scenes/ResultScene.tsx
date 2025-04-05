@@ -23,7 +23,6 @@ const ResultScene = ({ playerId, gameResult }: ResultSceneProps) => {
   }
 
   const isPlayerWinner = gameResult.winner === playerId;
-  const isOpponentWinner = gameResult.winner !== playerId;
   const isDraw = gameResult.winner === -1;
 
   return (

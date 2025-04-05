@@ -45,7 +45,7 @@ const GameComponent = () => {
       };
 
       ws.onmessage = (event) => {
-        const message = handleGameMessage(event.data, setOpponentUuid, setOpponentName, setOpponentReady, 
+        handleGameMessage(event.data, setOpponentUuid, setOpponentName, setOpponentReady, 
             opponentUuidRef.current, setPlayerId, playerUuidRef.current, 
             setCountdown, setGamePhase, setBoard, setGameResult);
       };
@@ -122,7 +122,6 @@ const GameComponent = () => {
             opponentUuid={opponentUuid || ''}
             opponentName={opponentName || ''}
             board={board}
-            setBoard={setBoard}
             selectedSpecialCardIndex={selectedSpecialCardIndex}
             setSelectedSpecialCardIndex={setSelectedSpecialCardIndex}
         />

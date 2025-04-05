@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { DiceCollectionType, Board } from '../../models/game';
-import CardDisplay from '../CardDisplay';
 import MiddlePanel from './GameScenePanels/MiddlePanel';
 import TopLeftPanel from './GameScenePanels/TopLeftPanel';
 import BottomLeftPanel from './GameScenePanels/BottomLeftPanel';
@@ -18,12 +17,11 @@ interface GameSceneProps {
   opponentUuid: string;
   opponentName: string;
   board: Board | null;
-  setBoard: (board: Board | null) => void;
   selectedSpecialCardIndex: number | null;
   setSelectedSpecialCardIndex: (index: number | null) => void;
 }
 
-const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, setBoard, selectedSpecialCardIndex, setSelectedSpecialCardIndex }: GameSceneProps) => {
+const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, opponentUuid, opponentName, board, selectedSpecialCardIndex, setSelectedSpecialCardIndex }: GameSceneProps) => {
   const [isRolling, setIsRolling] = useState<boolean>(false);
 
   const handleRollDice = async (diceCollectionType: DiceCollectionType, specialCardIndex: number | null) => {
@@ -140,8 +138,6 @@ const GameScene = ({ playerId, gamePhase, gameId, playerUuid, playerName, oppone
         <BottomRightPanel 
           board={board} 
           playerId={playerId} 
-          gameId={gameId} 
-          playerUuid={playerUuid} 
           handleRollDice={handleRollDice}
           selectedSpecialCardIndex={selectedSpecialCardIndex}
         />

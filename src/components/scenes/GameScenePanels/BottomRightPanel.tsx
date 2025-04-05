@@ -4,17 +4,13 @@ import { Board, DiceCollectionType } from '../../../models/game';
 interface BottomRightPanelProps {
   board: Board | null;
   playerId: number;
-  gameId: string;
-  playerUuid: string;
   handleRollDice: (diceCollectionType: DiceCollectionType, specialCardIndex: number | null) => void;
   selectedSpecialCardIndex: number | null;
 }
 
 const BottomRightPanel: React.FC<BottomRightPanelProps> = ({ 
   board, 
-  playerId, 
-  gameId, 
-  playerUuid, 
+  playerId,  
   handleRollDice,
   selectedSpecialCardIndex
 }) => {
